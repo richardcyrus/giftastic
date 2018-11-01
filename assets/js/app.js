@@ -200,6 +200,23 @@
                 url: base_uri,
                 data: queryData
             }).done((result) => {
+                const data = result.data;
+
+                if (data.length === 0) {
+                    const meta = result.meta;
+                    const pages = result.pagination;
+
+                    if (meta.status === 200 && pages.total_count === 0) {
+                        // Display message: No results for your topic.
+                        console.log('No results for your topic.');
+                    }
+
+                    // Quit now if there isn't anything in the result
+                    // set. Does not clear the existing images when
+                    // the query returned no data.
+                    return;
+                }
+
                 clearImages();
                 createImages(result.data);
             });
