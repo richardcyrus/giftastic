@@ -18,7 +18,7 @@
  *  stop.
  */
 
-(function ($, window) {
+(function ($) {
     const GifTastic = (function () {
         "use strict";
 
@@ -33,14 +33,15 @@
          * allows for jQuery to automatically handle the url-encoding of
          * characters for the request.
          *
-         * @type {{api_key: string, fmt: string, lang: string, limit: number, offset: number, q: string|null}}
+         * @type {{api_key: string, fmt: string, lang: string, limit: number, offset: number, rating: string, q: string|null}}
          */
-        const data = {
+        const queryData = {
             api_key: 'dc6zaTOxFJmzC',
             fmt: 'json',
             lang: 'en',
             limit: 10,
             offset: 0,
+            rating: 'pg-13',
             q: null
         };
 
@@ -159,40 +160,155 @@
         };
 
         /**
-         * Handle the submission of the user's topic when they click
-         * the submit button or press enter after typing into the
-         * input box on the form.
+         * Remove all GIPHY images from the page.
          */
-        const addUserTopic = function () {
+        const clearImages = function () {
+            $('.image-set').empty();
+        };
+
+        /**
+         * Create a new user provided topic button.
+         *
+         * @param el
+         */
+        const addUserTopic = function (el) {
+            // Extract the user's text input.
+            let providedTopic = el.val().trim();
+            providedTopic = toTitleCase(providedTopic);
+
+            // Create a new button with the text from the input
+            // field.
+            if (! topics.includes(providedTopic)) {
+
+                displayTopicButton(createTopicButton(providedTopic));
+
+                // To satisfy one of the homework requirements `;-)`
+                topics.push(providedTopic);
+            } // TODO: Show message and flash button when exists.
+
+        };
+
+        /**
+         * Query the API for the specified term.
+         *
+         * @param search_term
+         */
+        const getFromAPI = function (search_term) {
+            queryData.q = search_term;
+
+            $.ajax({
+                url: base_uri,
+                data: queryData
+            }).done((result) => {
+                clearImages();
+                createImages(result.data);
+            });
+        };
+
+        /**
+         * Using the information from the API query, build the image
+         * tags for display on the page.
+         *
+         * @param giphyData
+         */
+        const createImages = function (giphyData) {
+            giphyData.forEach((record) => {
+                const image = $('<img/>')
+                    .attr({
+                        src: record.images.original_still.url,
+                        'data-still': record.images.original_still.url,
+                        'data-animate': record.images.original.url,
+                        'data-state': 'still',
+                        'data-rating': record.rating
+                    }).addClass('gif');
+
+                displayImages(image);
+            });
+        };
+
+        /**
+         * Add a completed image tag to the page.
+         *
+         * @param element
+         */
+        const displayImages = function (element) {
+            $('.image-set').append(element);
+        };
+
+        /**
+         * Check the current animation state of the element that was
+         * clicked and make the appropriate adjustments.
+         *
+         * @param el
+         */
+        const changeState = function (el) {
+            const currentState = $(el).attr('data-state');
+
+            switch (currentState) {
+                case 'still':
+                    $(el).attr('src', $(el).attr('data-animate'));
+                    $(el).attr('data-state', 'animate');
+                    break;
+                case 'animate':
+                    $(el).attr('src', $(el).attr('data-still'));
+                    $(el).attr('data-state', 'still');
+                    break;
+            }
+        };
+
+        /**
+         * Register all event handlers for this application.
+         */
+        const registerEventHandlers = function () {
+            /**
+             * Handle the submission of the user's topic when they click
+             * the submit button or press enter after typing into the
+             * input box on the form.
+             */
             $('.user-topic').on('submit', '.user__topic-form', function (e) {
                 // Stop the page refresh on form submission.
                 e.preventDefault();
 
-                // Get the element with the user's input.
+                // Get the user's entry and dispatch the button creation.
                 const el = $(this).find('[name=user_topic]');
+                addUserTopic(el);
 
-                // Extract the user's text input.
-                const providedTopic = el.val().trim();
-
-                // Create a new button with the text from the input
-                // field. (TODO: Make sure topic isn't already there!)
-                displayTopicButton(
-                    createTopicButton(
-                        toTitleCase(providedTopic)
-                    )
-                );
-
-                // Clear the input box so they can add more topics.
+                // Clear the input box so the user can add more topics.
                 el.val('');
+            });
+
+            /**
+             * Initiate a query to the API when the user clicks on one
+             * of the topic buttons (Including user created topic buttons).
+             */
+            $('.button-set').on('click', '.topic__button', function (e) {
+                e.preventDefault();
+
+                // Lookup the topic using GIPHY search API.
+                getFromAPI($(this).attr('data-topic'));
+            });
+
+            /**
+             * Animate the Gif when the user clicks on the image, and
+             * stop the animation when they click the image again.
+             */
+            $('.image-set').on('click', '.gif', function () {
+                changeState($(this));
             });
         };
 
+        /**
+         * Setup the application.
+         */
         const init = function () {
             buildInitialTopicButtons();
             buildUserTopicsForm();
-            addUserTopic();
+            registerEventHandlers();
         };
 
+        /**
+         * Expose the public API for using this module.
+         */
         return {
             setup: init
         };
@@ -200,4 +316,4 @@
     })();
 
     GifTastic.setup();
-})(jQuery, window);
+})(jQuery);
