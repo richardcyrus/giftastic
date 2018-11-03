@@ -8,18 +8,42 @@
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 </head>
 <body>
-<div class="container">
-    <div class="button-set">
-
-    </div>
-    <div class="user-topic">
-
-    </div>
-    <div class="image-set">
-
+<nav class="navbar navbar-dark bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-2 mr-0" href="#">GifTastic</a>
+</nav>
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <main role="main" class="col-10 px-4">
+            <div class="d-flex flex-nowrap justify-content-between align-items-center pt-3 pb-2 mb-2 border-bottom">
+                <h1 class="h2">Click a topic button to see the images.</h1>
+            </div>
+            <div class="py-2 mb-2 border-bottom topic__set"></div>
+            <div class="d-none flex-nowrap mb-2 border-bottom topic__title-container">
+                <h1 class="topic__title h2"></h1>
+            </div>
+            <div class="card-columns image-set"></div>
+        </main>
+        <nav class="sidebar col-2">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between pt-3 align-items-center topic__form-title">
+                    <span>Add Topic</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item sidebar__form"></li>
+                </ul>
+            </div>
+        </nav>
     </div>
 </div>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<footer class="bg-dark py-4">
+    <p class="text-center text-white m-0">Copyright &copy; 2018 Richard Cyrus</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script type="text/javascript" src="assets/js/app.js"></script>
 </body>
 </html>

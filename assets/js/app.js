@@ -77,6 +77,41 @@
         ];
 
         /**
+         * The container for the `Add Topic` form.
+         *
+         * @type {*|HTMLElement}
+         */
+        const userTopicCont = $('.sidebar__form');
+
+        /**
+         * The container for the topic buttons.
+         *
+         * @type {*|HTMLElement}
+         */
+        const topicButtonCont = $('.topic__set');
+
+        /**
+         * The container for the gif images.
+         *
+         * @type {*|HTMLElement}
+         */
+        const imageCont = $('.image-set');
+
+        /**
+         * Display the title of the selected topic.
+         *
+         * @type {*|HTMLElement}
+         */
+        const topicTitle = $('.topic__title');
+
+        /**
+         * The target for toggling the display of the topic selected.
+         *
+         * @type {*|HTMLElement}
+         */
+        const titleCont = $('.topic__title-container');
+
+        /**
          * Convert a string into Title Case.
          *
          * @param str
@@ -102,7 +137,7 @@
          */
         const createTopicButton = function (topic) {
             return $('<button/>')
-                .addClass('topic__button')
+                .addClass('btn btn-outline-primary topic__button mb-2 mr-2')
                 .attr('data-topic', topic.toLowerCase())
                 .text(topic);
         };
@@ -113,7 +148,7 @@
          * @param button
          */
         const displayTopicButton = function (button) {
-            $('.button-set').append(button);
+            topicButtonCont.append(button);
         };
 
         /**
@@ -131,7 +166,7 @@
          */
         const buildUserTopicsForm = function () {
             const userTopicInput = $('<input/>')
-                .addClass('form-control')
+                .addClass('form-control mb-2 border-dark')
                 .attr({
                     type: 'text',
                     name: 'user_topic',
@@ -156,14 +191,14 @@
                 .attr({method: 'POST', action: '#'})
                 .append(formGroup);
 
-            $('.user-topic').append(userTopicForm);
+            userTopicCont.append(userTopicForm);
         };
 
         /**
          * Remove all GIPHY images from the page.
          */
         const clearImages = function () {
-            $('.image-set').empty();
+            imageCont.empty();
         };
 
         /**
@@ -178,14 +213,18 @@
 
             // Create a new button with the text from the input
             // field.
-            if (! topics.includes(providedTopic)) {
+            if (!topics.includes(providedTopic)) {
 
                 displayTopicButton(createTopicButton(providedTopic));
 
                 // To satisfy one of the homework requirements `;-)`
                 topics.push(providedTopic);
-            } // TODO: Show message and flash button when exists.
-
+            } else {
+                showAlert(
+                    `»${providedTopic}« is already in the list of topic buttons!`,
+                    'info'
+                );
+            }
         };
 
         /**
@@ -207,8 +246,7 @@
                     const pages = result.pagination;
 
                     if (meta.status === 200 && pages.total_count === 0) {
-                        // Display message: No results for your topic.
-                        console.log('No results for your topic.');
+                        showAlert('Sorry, there were no results for the chosen topic.');
                     }
 
                     // Quit now if there isn't anything in the result
@@ -218,7 +256,7 @@
                 }
 
                 clearImages();
-                createImages(result.data);
+                createImages(data);
             });
         };
 
@@ -232,12 +270,13 @@
             giphyData.forEach((record) => {
                 const image = $('<img/>')
                     .attr({
-                        src: record.images.original_still.url,
-                        'data-still': record.images.original_still.url,
                         'data-animate': record.images.original.url,
+                        'data-rating': record.rating,
                         'data-state': 'still',
-                        'data-rating': record.rating
-                    }).addClass('gif');
+                        'data-still': record.images.original_still.url,
+                        alt: record.title,
+                        src: record.images.original_still.url
+                    }).addClass('card-img-top gif');
 
                 displayImages(image);
             });
@@ -246,10 +285,24 @@
         /**
          * Add a completed image tag to the page.
          *
-         * @param element
+         * @param image
          */
-        const displayImages = function (element) {
-            $('.image-set').append(element);
+        const displayImages = function (image) {
+
+            const rating = $('<div/>')
+                .addClass('card-text').text(
+                    `Rating: ${$(image).attr('data-rating').toUpperCase()}`
+                );
+
+            const caption = $('<div/>')
+                .addClass('card-body').append(rating);
+
+            const card = $('<div/>')
+                .addClass('card d-inline-block border-dark text-white bg-secondary')
+                .append(image, caption);
+
+            imageCont.append(card);
+            titleCont.removeClass('d-none').addClass('d-flex')
         };
 
         /**
@@ -274,6 +327,48 @@
         };
 
         /**
+         * Display a message on the screen to tell the user something.
+         *
+         * @param message
+         * @param level
+         */
+        const showAlert = function (message, level = 'danger') {
+
+            const levels = [
+                'primary',
+                'secondary',
+                'success',
+                'danger',
+                'warning',
+                'info',
+                'light',
+                'dark'
+            ];
+
+            if (!levels.includes(level)) {
+                level = 'warning';
+            }
+
+            const closeSymbol = $('<span/>')
+                .attr('aria-hidden', 'true')
+                .html('&times;');
+
+            const button = $('<button/>')
+                .addClass('close')
+                .attr({
+                    'data-dismiss': 'alert',
+                    'aria-label': 'Close'
+                }).append(closeSymbol);
+
+            const alert = $('<div/>')
+                .addClass(`alert alert-${level} alert-dismissible fade show`)
+                .attr('role', 'alert')
+                .append(message, button);
+
+            topicButtonCont.append(alert);
+        };
+
+        /**
          * Register all event handlers for this application.
          */
         const registerEventHandlers = function () {
@@ -282,7 +377,7 @@
              * the submit button or press enter after typing into the
              * input box on the form.
              */
-            $('.user-topic').on('submit', '.user__topic-form', function (e) {
+            userTopicCont.on('submit', '.user__topic-form', function (e) {
                 // Stop the page refresh on form submission.
                 e.preventDefault();
 
@@ -298,8 +393,11 @@
              * Initiate a query to the API when the user clicks on one
              * of the topic buttons (Including user created topic buttons).
              */
-            $('.button-set').on('click', '.topic__button', function (e) {
+            topicButtonCont.on('click', '.topic__button', function (e) {
                 e.preventDefault();
+
+                // Set the topic title on the page.
+                topicTitle.text($(this).text());
 
                 // Lookup the topic using GIPHY search API.
                 getFromAPI($(this).attr('data-topic'));
@@ -309,7 +407,7 @@
              * Animate the Gif when the user clicks on the image, and
              * stop the animation when they click the image again.
              */
-            $('.image-set').on('click', '.gif', function () {
+            imageCont.on('click', '.gif', function () {
                 changeState($(this));
             });
         };

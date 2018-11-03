@@ -23,7 +23,6 @@ function server() {
         // browser: "google chrome",
         browser: "safari",
         injectChanges: true,
-        minify: false,
         notify: false,
         open: true,
         reloadDebounce: 2000,
