@@ -9,3 +9,4 @@ build
 *.scss
 *-min.*
 node_modules
+.api-key.txt
