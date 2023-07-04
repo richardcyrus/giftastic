@@ -36,7 +36,7 @@
          * @type {{api_key: string, fmt: string, lang: string, limit: number, offset: number, rating: string, q: string|null}}
          */
         const queryData = {
-            api_key: 'dc6zaTOxFJmzC',
+            api_key: 'CKhFdi5258nuZ8Ph7LauVc0hUXQSPG8X',
             fmt: 'json',
             lang: 'en',
             limit: 10,

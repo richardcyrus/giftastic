@@ -10,3 +10,4 @@ build
 *-min.*
 node_modules
 .api-key.txt
+.DS_Store
